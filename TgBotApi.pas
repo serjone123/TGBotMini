@@ -367,6 +367,7 @@ type
     destructor Destroy; override;
   end;
 
+
   TtgUserResponse = TtgResponse<TtgUser>;
 
   TtgMessageResponse = TtgResponse<TtgMessage>;
@@ -520,7 +521,7 @@ type
     function SendPhotoToChat(ChatId: Int64; const Caption: string; const FileName: string; Stream: TStream): TtgMessageResponse; overload;
     function SendPoll(Params: TtgPollParams): TtgMessageResponse;
     function SendAudio(Params: TtgAudioParams): TtgMessageResponse;
-    function DeleteMessage(ChatId: Int64; MessageId: Int64): TtgMessageResponse;
+    function DeleteMessage(ChatId: Int64; MessageId: Int64): TtgResponse;
     //
     procedure GetFile(const FileId: string; Stream: TStream);
     //
@@ -700,12 +701,12 @@ begin
   CollectSubscribers;
 end;
 
-function TtgClient.DeleteMessage(ChatId, MessageId: Int64): TtgMessageResponse;
+function TtgClient.DeleteMessage(ChatId, MessageId: Int64): TtgResponse;
 begin
   var Msg := TtgMessageDel.Create;
   Msg.ChatId := ChatId;
   Msg.MessageId := MessageId;
-  Result := Execute<TtgMessageResponse>('deleteMessage', Msg.ToString(True));
+  Result := Execute<TtgResponse>('deleteMessage', Msg.ToString(True));
 end;
 
 destructor TtgClient.Destroy;
@@ -735,12 +736,15 @@ begin
     finally
       Body.Free;
     end;
-    if StatusCode = 200 then
-      Result := TJSON.JsonToObject<T>(Response.DataString)
+
+    case StatusCode of
+      200: Result := TJSON.JsonToObject<T>(Response.DataString) ;
+      400: DoTextOut('Error '+ StatusCode.ToString+': '+ Response.DataString);
     else
       DoError(Response);
     if not Assigned(Result) then
       raise TtgException.Create(-1, 'Empty object');
+    end;
   finally
     HTTP.Free;
     Response.Free;
