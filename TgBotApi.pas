@@ -1,4 +1,4 @@
-﻿unit TgBotApi;
+unit TgBotApi;
 
 interface
 
@@ -378,7 +378,6 @@ type
     destructor Destroy; override;
   end;
 
-
   TtgUserResponse = TtgResponse<TtgUser>;
 
   TtgMessageResponse = TtgResponse<TtgMessage>;
@@ -532,11 +531,7 @@ type
     function SendPhotoToChat(ChatId: Int64; const Caption: string; const FileName: string; Stream: TStream): TtgMessageResponse; overload;
     function SendPoll(Params: TtgPollParams): TtgMessageResponse;
     function SendAudio(Params: TtgAudioParams): TtgMessageResponse;
-<<<<<<< HEAD
-    function DeleteMessage(ChatId: Int64; MessageId: Int64): TtgResponse;
-=======
     procedure DeleteMessage(ChatId: Int64; MessageId: Int64);
->>>>>>> d03e24b1d935f845c44b68a7c835ff2f593bb927
     //
     procedure GetFile(const FileId: string; Stream: TStream);
     //
@@ -722,21 +717,13 @@ begin
   CollectSubscribers;
 end;
 
-<<<<<<< HEAD
-function TtgClient.DeleteMessage(ChatId, MessageId: Int64): TtgResponse;
-=======
 procedure TtgClient.DeleteMessage(ChatId, MessageId: Int64);
->>>>>>> d03e24b1d935f845c44b68a7c835ff2f593bb927
 begin
   var Msg := TtgMessageDel.Create;
   Msg.ChatId := ChatId;
   Msg.MessageId := MessageId;
-<<<<<<< HEAD
-  Result := Execute<TtgResponse>('deleteMessage', Msg.ToString(True));
-=======
   var Resp := Execute<TtgResponseDelete>('deleteMessage', Msg.ToString(True));
   Resp.Free;
->>>>>>> d03e24b1d935f845c44b68a7c835ff2f593bb927
 end;
 
 destructor TtgClient.Destroy;
@@ -766,22 +753,14 @@ begin
     finally
       Body.Free;
     end;
-<<<<<<< HEAD
-
-    case StatusCode of
-      200: Result := TJSON.JsonToObject<T>(Response.DataString) ;
-      400: DoTextOut('Error '+ StatusCode.ToString+': '+ Response.DataString);
-=======
     if FLogging then
       DoTextOut(Response.DataString);
     if StatusCode = 200 then
       Result := TJSON.JsonToObject<T>(Response.DataString)
->>>>>>> d03e24b1d935f845c44b68a7c835ff2f593bb927
     else
       DoError(Response, StatusCode);
     if not Assigned(Result) then
       raise TtgException.Create(-1, 'Empty object');
-    end;
   finally
     HTTP.Free;
     Response.Free;
